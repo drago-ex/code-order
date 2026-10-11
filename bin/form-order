@@ -6,7 +6,11 @@ declare(strict_types=1);
 use Drago\FormOrder\FormOrderer;
 use Drago\FormOrder\FormOrderConfiguration;
 
+$autoloadPaths = isset($_composer_autoload_path) && is_string($_composer_autoload_path)
+	? [$_composer_autoload_path]
+	: [];
 $autoloadPaths = [
+	...$autoloadPaths,
 	getcwd() . '/vendor/autoload.php',
 	__DIR__ . '/../vendor/autoload.php',
 ];
@@ -31,13 +35,26 @@ $arguments = array_slice($argv, 1);
 for ($index = 0; $index < count($arguments); $index++) {
 	$argument = $arguments[$index];
 	if ($argument === '--help' || $argument === '-h') {
-		echo "Usage: form-order [--fix] [--config FILE] [path ...]\n";
+		echo "Usage: form-order [-d path] [-f|--fix] [--config FILE] [path ...]\n";
 		echo "Checks form method order by default; --fix writes safe reorderings.\n";
 		exit(0);
 	}
 
 	if ($argument === '--fix') {
 		$fix = true;
+		continue;
+	}
+	if ($argument === '-f') {
+		$fix = true;
+		continue;
+	}
+	if ($argument === '-d') {
+		$path = $arguments[++$index] ?? null;
+		if ($path === null) {
+			fwrite(STDERR, "ERROR: -d requires a directory or file path.\n");
+			exit(2);
+		}
+		$paths[] = $path;
 		continue;
 	}
 	if ($argument === '--config') {

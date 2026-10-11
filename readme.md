@@ -11,24 +11,33 @@ Both commands preserve method bodies and formatting. They move only supported de
 
 ## Installation
 
-Install as a development dependency:
+Install globally to use both commands from any project, like other Composer CLI tools:
 
 ```bash
-composer require --dev drago-ex/code-order
+composer global require drago-ex/code-order
+composer global config bin-dir --absolute
 ```
+
+Add the printed Composer `bin` directory to `PATH`. Alternatively, install Code Order as a development dependency in a single project with `composer require --dev drago-ex/code-order`.
 
 ## Form control method order
 
-Check PHP files without changing them:
+Check PHP files without changing them. `-d` selects the file or directory; without it, the current directory is scanned:
 
 ```bash
-vendor/bin/form-order app
+form-order -d app
 ```
 
 Apply safe reorderings:
 
 ```bash
-vendor/bin/form-order --fix app
+form-order -d app --fix
+```
+
+The `-f` option is a short form of `--fix`. From the global Composer `bin` directory on Windows, the command can also be run directly with PHP:
+
+```powershell
+php .\form-order -d C:\path\to\project\app -f
 ```
 
 The form command reads `form-order.neon` from the current working directory when present. Pass another file with `--config`:
@@ -60,13 +69,13 @@ The ordering rule does not add or remove control methods or validation rules. If
 Check PHP files:
 
 ```bash
-vendor/bin/class-order app
+class-order -d app
 ```
 
 Apply safe reorderings:
 
 ```bash
-vendor/bin/class-order --fix app
+class-order -d app --fix
 ```
 
 The general rule places constants before properties, groups properties by visibility (`public`, `protected`, `private`), puts the constructor before other methods, then groups remaining methods by visibility. Equal-priority members retain their relative order.

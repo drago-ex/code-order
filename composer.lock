@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e2d2cedca927664130a41785c71a6a47",
+    "content-hash": "b2003c9f1f0cc00d9b1bf44f58ba30d4",
     "packages": [
         {
             "name": "nette/neon",
@@ -348,7 +348,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.3 <9"
+        "php": ">=8.3 <9",
+        "composer-runtime-api": "^2.2"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

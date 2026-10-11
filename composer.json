@@ -5,6 +5,7 @@
 	"license": "MIT",
 	"require": {
 		"php": ">=8.3 <9",
+		"composer-runtime-api": "^2.2",
 		"nikic/php-parser": "^5.0",
 		"nette/neon": "^3.4"
 	},
