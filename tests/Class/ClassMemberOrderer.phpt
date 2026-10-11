@@ -182,3 +182,64 @@ test('does not move class members across an unsupported trait-use statement', fu
 
 	Assert::null($orderer->reorder($source));
 });
+
+
+test('does not separate trailing comments from class members', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Example
+		{
+			private int $privateValue; // Private value.
+			public int $publicValue; // Public value.
+			protected int $protectedValue;
+		}
+		PHP;
+
+	Assert::null($orderer->reorder($source));
+});
+
+
+test('orders methods without visibility as public methods', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Example
+		{
+			private function hidden(): void {}
+
+			function visible(): void {}
+		}
+		PHP;
+	$ordered = $orderer->reorder($source);
+	$parser = (new ParserFactory)->createForNewestSupportedVersion();
+	$class = (new NodeFinder)->findFirstInstanceOf($parser->parse($ordered ?? ''), Class_::class);
+
+	Assert::type(Class_::class, $class);
+	Assert::same(['visible', 'hidden'], array_map(static fn($method): string => $method->name->toString(), $class->getMethods()));
+});
+
+
+test('orders asymmetric properties by their read visibility', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Example
+		{
+			private string $privateValue;
+
+			private(set) string $publicReadValue;
+
+			protected string $protectedValue;
+		}
+		PHP;
+	$ordered = $orderer->reorder($source);
+	$parser = (new ParserFactory)->createForNewestSupportedVersion();
+	$class = (new NodeFinder)->findFirstInstanceOf($parser->parse($ordered ?? ''), Class_::class);
+
+	Assert::type(Class_::class, $class);
+	Assert::same(
+		['publicReadValue', 'protectedValue', 'privateValue'],
+		array_map(static fn($property): string => $property->props[0]->name->toString(), $class->getProperties()),
+	);
+});

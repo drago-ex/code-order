@@ -70,10 +70,7 @@ final class ClassMemberOrderer
 			{
 				$isPresenter = $class instanceof Class_
 					&& $class->extends !== null
-					&& (
-						strtolower(ltrim($class->extends->toString(), '\\')) === 'nette\application\ui\presenter'
-						|| str_ends_with(strtolower($class->extends->toString()), 'presenter')
-					);
+					&& str_ends_with(strtolower($class->extends->toString()), 'presenter');
 				$runStart = $this->getBodyStart($class);
 				if ($runStart === null) {
 					return;
@@ -148,7 +145,13 @@ final class ClassMemberOrderer
 				foreach ($run as $statement) {
 					$start = $this->getNodeStart($statement);
 					$end = $statement->getAttribute('endFilePos');
-					if (!is_int($start) || !is_int($end) || $start < $cursor || $end < $start) {
+					if (
+						!is_int($start)
+						|| !is_int($end)
+						|| $start < $cursor
+						|| $end < $start
+						|| $this->hasTrailingComment($end)
+					) {
 						return;
 					}
 
@@ -222,7 +225,7 @@ final class ClassMemberOrderer
 				}
 
 				if ($node instanceof Property) {
-					return 20 + $this->getVisibilityRank($node->flags);
+					return 20 + $this->getVisibilityRank($node);
 				}
 
 				if ($node instanceof ClassMethod) {
@@ -237,10 +240,10 @@ final class ClassMemberOrderer
 							return 40 + $lifecycleRank;
 						}
 
-						return 50 + $this->getVisibilityRank($node->flags);
+						return 50 + $this->getVisibilityRank($node);
 					}
 
-					return 40 + $this->getVisibilityRank($node->flags);
+					return 40 + $this->getVisibilityRank($node);
 				}
 
 				return null;
@@ -271,13 +274,13 @@ final class ClassMemberOrderer
 			}
 
 
-			private function getVisibilityRank(int $flags): int
+			private function getVisibilityRank(ClassMethod|Property $node): int
 			{
-				if (($flags & Class_::MODIFIER_PUBLIC) !== 0) {
+				if ($node->isPublic()) {
 					return 0;
 				}
 
-				if (($flags & Class_::MODIFIER_PROTECTED) !== 0) {
+				if ($node->isProtected()) {
 					return 1;
 				}
 
@@ -341,6 +344,22 @@ final class ClassMemberOrderer
 				}
 
 				$fragment = substr($this->source, $start, $end - $start);
+
+				foreach (token_get_all('<?php ' . $fragment) as $token) {
+					if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+
+			private function hasTrailingComment(int $end): bool
+			{
+				$lineEnd = strpos($this->source, "\n", $end + 1);
+				$lineEnd = $lineEnd === false ? strlen($this->source) : $lineEnd;
+				$fragment = substr($this->source, $end + 1, $lineEnd - $end - 1);
 
 				foreach (token_get_all('<?php ' . $fragment) as $token) {
 					if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {

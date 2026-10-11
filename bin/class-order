@@ -42,7 +42,7 @@ for ($index = 0; $index < count($arguments); $index++) {
 	$argument = $arguments[$index];
 	if ($argument === '--help' || $argument === '-h') {
 		echo "Usage: class-order [-d path] [-f|--fix] [path ...]\n";
-		echo "Checks class member ordering by default; --fix writes safe reorderings.\n";
+		echo "Checks class member ordering by default; --fix applies configured reorderings.\n";
 		exit(0);
 	}
 

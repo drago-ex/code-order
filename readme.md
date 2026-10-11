@@ -27,7 +27,7 @@ Check PHP files without changing them. `-d` selects the file or directory; witho
 form-order -d app
 ```
 
-Apply safe reorderings:
+Apply the configured ordering:
 
 ```bash
 form-order -d app --fix
@@ -61,7 +61,7 @@ form-order:
 
 The available method groups are `presentation`, `choices`, `state`, `defaults`, `input`, `required`, and `validation`. An integer can be used instead of a group name when a custom method needs a specific priority; lower numbers run earlier. Calls with equal priority keep their source order.
 
-The ordering rule does not add or remove control methods or validation rules. If a chain contains an unsupported method, the tool leaves that chain unchanged. An example configuration for Drago Form is available in `examples/drago-project.neon`.
+The ordering rule does not add or remove control methods or validation rules. If a chain contains an unsupported method, the tool leaves that chain unchanged. It is syntax-based and does not verify that a method named `addText()` or another configured control factory actually belongs to a Nette form. An example configuration for Drago Form is available in `examples/drago-project.neon`.
 
 ## Class member and Presenter method order
 
@@ -71,7 +71,7 @@ Check PHP files:
 class-order -d app
 ```
 
-Apply safe reorderings:
+Apply the configured ordering:
 
 ```bash
 class-order -d app --fix

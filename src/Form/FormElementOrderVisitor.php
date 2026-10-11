@@ -47,7 +47,7 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 		'setEmptyValue' => 20,
 		'setMaxLength' => 20,
 		'setFormat' => 20,
-		'setDisabled' => 25,
+		'setDisabled' => 30,
 		'setNullable' => 30,
 		'setDefaultValue' => 30,
 		'setOmitted' => 30,

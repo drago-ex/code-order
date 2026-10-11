@@ -44,7 +44,7 @@ for ($index = 0; $index < count($arguments); $index++) {
 	$argument = $arguments[$index];
 	if ($argument === '--help' || $argument === '-h') {
 		echo "Usage: form-order [-d path] [-f|--fix] [--config FILE] [path ...]\n";
-		echo "Checks form method order by default; --fix writes safe reorderings.\n";
+		echo "Checks form method order by default; --fix applies configured reorderings.\n";
 		exit(0);
 	}
 
