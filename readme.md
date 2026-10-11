@@ -1,6 +1,6 @@
 # Drago Code Order
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/drago-ex/code-order/blob/master/license)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/drago-ex/code-order/blob/main/license)
 [![PHP version](https://badge.fury.io/ph/drago-ex%2Fcode-order.svg)](https://badge.fury.io/ph/drago-ex%2Fcode-order)
 [![Tests](https://github.com/drago-ex/code-order/actions/workflows/tests.yml/badge.svg)](https://github.com/drago-ex/code-order/actions/workflows/tests.yml)
 [![Coding Style](https://github.com/drago-ex/code-order/actions/workflows/coding-style.yml/badge.svg)](https://github.com/drago-ex/code-order/actions/workflows/coding-style.yml)
