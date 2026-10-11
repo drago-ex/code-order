@@ -1,0 +1,17 @@
+form-order:
+	custom:
+		controls:
+			- addTextInput
+			- addEmailInput
+			- addPasswordInput
+			- addIntegerInput
+			- addTextAreaForm
+			- addPasswordField
+			- addPasswordConfirmationField
+			- addEmailField
+		methods:
+			setAutocomplete: presentation
+			setPlaceholder: presentation
+			setReadOnly: presentation
+			setMin: presentation
+			setMax: presentation

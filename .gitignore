@@ -1,0 +1,4 @@
+/vendor/
+/tests/tmp/
+/tests/**/output/
+/coverage.*

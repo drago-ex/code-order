@@ -1,0 +1,112 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Drago\ClassOrder\ClassMemberOrderer;
+
+$autoloadPaths = [
+	getcwd() . '/vendor/autoload.php',
+	__DIR__ . '/../vendor/autoload.php',
+];
+
+foreach ($autoloadPaths as $autoloadPath) {
+	if (is_file($autoloadPath)) {
+		require $autoloadPath;
+		break;
+	}
+}
+
+if (!class_exists(ClassMemberOrderer::class)) {
+	fwrite(STDERR, "ERROR: Composer autoload.php not found. Run 'composer install' first.\n");
+	exit(2);
+}
+
+$fix = false;
+$paths = [];
+foreach (array_slice($argv, 1) as $argument) {
+	if ($argument === '--help' || $argument === '-h') {
+		echo "Usage: class-order [--fix] [path ...]\n";
+		echo "Checks class member ordering by default; --fix writes safe reorderings.\n";
+		exit(0);
+	}
+
+	if ($argument === '--fix') {
+		$fix = true;
+		continue;
+	}
+
+	if (str_starts_with($argument, '-')) {
+		fwrite(STDERR, "ERROR: Unknown option: {$argument}\n");
+		exit(2);
+	}
+
+	$paths[] = $argument;
+}
+
+$paths = $paths !== [] ? $paths : ['.'];
+$files = [];
+$errors = 0;
+foreach ($paths as $path) {
+	if (is_file($path)) {
+		if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'php') {
+			$files[] = $path;
+		}
+		continue;
+	}
+
+	if (!is_dir($path)) {
+		fwrite(STDERR, "ERROR: Path not found: {$path}\n");
+		$errors++;
+		continue;
+	}
+
+	$iterator = new RecursiveIteratorIterator(
+		new RecursiveCallbackFilterIterator(
+			new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+			static fn(SplFileInfo $file): bool => !$file->isDir() || !in_array($file->getFilename(), ['.git', 'vendor', 'node_modules', 'temp', 'cache'], true),
+		),
+	);
+
+	foreach ($iterator as $file) {
+		if ($file->isFile() && strtolower($file->getExtension()) === 'php') {
+			$files[] = $file->getPathname();
+		}
+	}
+}
+
+$needsFix = 0;
+foreach (array_values(array_unique($files)) as $file) {
+	try {
+		$source = file_get_contents($file);
+		if ($source === false) {
+			throw new RuntimeException('Unable to read file.');
+		}
+
+		$ordered = (new ClassMemberOrderer())->reorder($source);
+		if ($ordered === null) {
+			continue;
+		}
+
+		if (!$fix) {
+			fwrite(STDOUT, "NEEDS FIX: {$file}\n");
+			$needsFix++;
+			continue;
+		}
+
+		if (file_put_contents($file, $ordered) === false) {
+			throw new RuntimeException('Unable to write file.');
+		}
+
+		fwrite(STDOUT, "FIXED: {$file}\n");
+	} catch (Throwable $exception) {
+		fwrite(STDERR, "ERROR: {$file}: {$exception->getMessage()}\n");
+		$errors++;
+	}
+}
+
+if ($errors > 0) {
+	exit(2);
+}
+
+exit($needsFix > 0 && !$fix ? 1 : 0);

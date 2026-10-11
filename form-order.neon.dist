@@ -1,0 +1,7 @@
+form-order:
+	custom:
+		controls:
+			- addDateRange
+		methods:
+			setAutocomplete: presentation
+			setPlaceholder: presentation

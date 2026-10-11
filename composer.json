@@ -1,0 +1,29 @@
+{
+	"name": "drago-ex/code-order",
+	"description": "Checks and fixes the order of Nette form controls and PHP class members.",
+	"type": "library",
+	"license": "MIT",
+	"require": {
+		"php": ">=8.3 <9",
+		"nikic/php-parser": "^5.0",
+		"nette/neon": "^3.4"
+	},
+	"require-dev": {
+		"nette/tester": "^2.5",
+		"phpstan/phpstan-nette": "^2.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Drago\\FormOrder\\": "src/Form/",
+			"Drago\\ClassOrder\\": "src/Class/"
+		}
+	},
+	"bin": [
+		"bin/form-order",
+		"bin/class-order"
+	],
+	"scripts": {
+		"phpstan": "phpstan analyse",
+		"tester": "tester tests -s"
+	}
+}
