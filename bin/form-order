@@ -6,6 +6,14 @@ declare(strict_types=1);
 use Drago\FormOrder\FormOrderer;
 use Drago\FormOrder\FormOrderConfiguration;
 
+$useColors = function_exists('stream_isatty')
+	&& stream_isatty(STDOUT)
+	&& getenv('NO_COLOR') === false
+	&& getenv('TERM') !== 'dumb';
+$colorize = static function (string $text, string $color) use ($useColors): string {
+	return $useColors ? "\033[{$color}m{$text}\033[0m" : $text;
+};
+
 $autoloadPaths = isset($_composer_autoload_path) && is_string($_composer_autoload_path)
 	? [$_composer_autoload_path]
 	: [];
@@ -23,7 +31,7 @@ foreach ($autoloadPaths as $autoloadPath) {
 }
 
 if (!class_exists(FormOrderer::class)) {
-	fwrite(STDERR, "ERROR: Composer autoload.php not found. Run 'composer install' first.\n");
+	fwrite(STDERR, $colorize('ERROR', '31') . ": Composer autoload.php not found. Run 'composer install' first.\n");
 	exit(2);
 }
 
@@ -57,10 +65,10 @@ for ($index = 0; $index < count($arguments); $index++) {
 		$paths[] = $path;
 		continue;
 	}
-	if ($argument === '--config') {
+		if ($argument === '--config') {
 		$configPath = $arguments[++$index] ?? null;
 		if ($configPath === null) {
-			fwrite(STDERR, "ERROR: --config requires a file path.\n");
+			fwrite(STDERR, $colorize('ERROR', '31') . ": --config requires a file path.\n");
 			exit(2);
 		}
 		continue;
@@ -71,7 +79,7 @@ for ($index = 0; $index < count($arguments); $index++) {
 	}
 
 	if (str_starts_with($argument, '-')) {
-		fwrite(STDERR, "ERROR: Unknown option: {$argument}\n");
+		fwrite(STDERR, $colorize('ERROR', '31') . ": Unknown option: {$argument}\n");
 		exit(2);
 	}
 
@@ -80,7 +88,7 @@ for ($index = 0; $index < count($arguments); $index++) {
 
 $paths = $paths !== [] ? $paths : ['.'];
 $mode = $fix ? 'Fix' : 'Check';
-fwrite(STDOUT, "Mode: {$mode}\n");
+fwrite(STDOUT, 'Mode: ' . $colorize($mode, '36') . "\n");
 fwrite(STDOUT, 'Paths: ' . implode(', ', $paths) . "\n");
 
 $files = [];
@@ -95,7 +103,7 @@ foreach ($paths as $path) {
 	}
 
 	if (!is_dir($path)) {
-		fwrite(STDERR, "ERROR: Path not found: {$path}\n");
+		fwrite(STDERR, $colorize('ERROR', '31') . ": Path not found: {$path}\n");
 		$errors++;
 		continue;
 	}
@@ -140,7 +148,7 @@ foreach ($files as $file) {
 		}
 
 		if (!$fix) {
-			fwrite(STDOUT, "NEEDS FIX: {$file}\n");
+			fwrite(STDOUT, $colorize('NEEDS FIX', '33') . ": {$file}\n");
 			$needsFix++;
 			continue;
 		}
@@ -149,30 +157,30 @@ foreach ($files as $file) {
 			throw new RuntimeException('Unable to write file.');
 		}
 
-		fwrite(STDOUT, "FIXED: {$file}\n");
+		fwrite(STDOUT, $colorize('FIXED', '32') . ": {$file}\n");
 		$fixed++;
 	} catch (Throwable $exception) {
-		fwrite(STDERR, "ERROR: {$file}: {$exception->getMessage()}\n");
+		fwrite(STDERR, $colorize('ERROR', '31') . ": {$file}: {$exception->getMessage()}\n");
 		$errors++;
 	}
 }
 
 if ($errors > 0) {
-	fwrite(STDOUT, "Done with {$errors} error(s).\n");
+	fwrite(STDOUT, $colorize("Done with {$errors} error(s).", '31') . "\n");
 	exit(2);
 }
 
 if ($fix) {
 	fwrite(STDOUT, $fixed > 0
-		? "Done. Fixed {$fixed} of " . count($files) . " PHP files.\n"
-		: 'Done. No changes needed.' . "\n");
+		? $colorize('Done. Fixed ' . $fixed . ' of ' . count($files) . ' PHP files.', '32') . "\n"
+		: $colorize('Done. No changes needed.', '32') . "\n");
 	exit(0);
 }
 
 if ($needsFix > 0) {
-	fwrite(STDOUT, "Done. {$needsFix} PHP files need reordering.\n");
+	fwrite(STDOUT, $colorize("Done. {$needsFix} PHP files need reordering.", '33') . "\n");
 	exit(1);
 }
 
-fwrite(STDOUT, 'Done. No ordering issues found in ' . count($files) . " PHP files.\n");
+fwrite(STDOUT, $colorize('Done. No ordering issues found in ' . count($files) . ' PHP files.', '32') . "\n");
 exit(0);

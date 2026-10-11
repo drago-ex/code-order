@@ -85,4 +85,6 @@ For classes that extend `Nette\Application\UI\Presenter` directly or through a b
 
 Both commands exit with code `1` when the check finds code to reorder, `0` when no changes are needed (or `--fix` succeeds), and `2` for parse, read, write, configuration, or path errors.
 
+In interactive terminals, `NEEDS FIX` is yellow, successful fixes and clean results are green, and errors are red. Colors are omitted when output is redirected, `NO_COLOR` is set, or the terminal reports `TERM=dumb`.
+
 Directories named `.git`, `vendor`, `node_modules`, `temp`, and `cache` are skipped during recursive scans. A directly named PHP file is processed regardless of its parent directory.
