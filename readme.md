@@ -14,10 +14,10 @@ Both commands preserve method bodies and formatting. They move only supported de
 Install globally to use both commands from any project, like other Composer CLI tools:
 
 ```bash
-composer global require drago-ex/code-order
+composer global require drago-ex/code-order:dev-main
 ```
 
-Composer makes the `form-order` and `class-order` commands available in its global `bin` directory. If that directory is not already in `PATH`, find it with `composer global config bin-dir --absolute` and add it to `PATH`. Alternatively, install Code Order as a development dependency in a single project with `composer require --dev drago-ex/code-order`.
+This installs the development branch. Once a stable release is available, the version suffix can be omitted. Composer makes the `form-order` and `class-order` commands available in its global `bin` directory. If that directory is not already in `PATH`, find it with `composer global config bin-dir --absolute` and add it to `PATH`. Alternatively, install Code Order as a development dependency in a single project with `composer require --dev drago-ex/code-order:dev-main`.
 
 ## Form control method order
 
