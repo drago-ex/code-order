@@ -320,9 +320,9 @@ final class ClassMemberOrderer
 				foreach (token_get_all('<?php ' . $fragment) as $token) {
 					$tokenText = is_array($token) ? $token[1] : $token;
 					if (
-					    is_array($token)
-					    && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)
-					    && !isset($attachedComments[$offset - 6])
+						is_array($token)
+						&& in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)
+						&& !isset($attachedComments[$offset - 6])
 					) {
 						return true;
 					}
