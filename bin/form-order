@@ -79,9 +79,14 @@ for ($index = 0; $index < count($arguments); $index++) {
 }
 
 $paths = $paths !== [] ? $paths : ['.'];
+$mode = $fix ? 'Fix' : 'Check';
+fwrite(STDOUT, "Mode: {$mode}\n");
+fwrite(STDOUT, 'Paths: ' . implode(', ', $paths) . "\n");
+
 $files = [];
 $errors = 0;
 foreach ($paths as $path) {
+	fwrite(STDOUT, "Scanning {$path}\n");
 	if (is_file($path)) {
 		if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'php') {
 			$files[] = $path;
@@ -112,6 +117,7 @@ foreach ($paths as $path) {
 }
 
 $files = array_values(array_unique($files));
+fwrite(STDOUT, 'Found ' . count($files) . " PHP files.\n");
 try {
 	$configuration = FormOrderConfiguration::fromFile($configPath);
 	$orderer = new FormOrderer($configuration);
@@ -120,6 +126,7 @@ try {
 	exit(2);
 }
 $needsFix = 0;
+$fixed = 0;
 foreach ($files as $file) {
 	try {
 		$source = file_get_contents($file);
@@ -143,6 +150,7 @@ foreach ($files as $file) {
 		}
 
 		fwrite(STDOUT, "FIXED: {$file}\n");
+		$fixed++;
 	} catch (Throwable $exception) {
 		fwrite(STDERR, "ERROR: {$file}: {$exception->getMessage()}\n");
 		$errors++;
@@ -150,7 +158,21 @@ foreach ($files as $file) {
 }
 
 if ($errors > 0) {
+	fwrite(STDOUT, "Done with {$errors} error(s).\n");
 	exit(2);
 }
 
-exit($needsFix > 0 && !$fix ? 1 : 0);
+if ($fix) {
+	fwrite(STDOUT, $fixed > 0
+		? "Done. Fixed {$fixed} of " . count($files) . " PHP files.\n"
+		: 'Done. No changes needed.' . "\n");
+	exit(0);
+}
+
+if ($needsFix > 0) {
+	fwrite(STDOUT, "Done. {$needsFix} PHP files need reordering.\n");
+	exit(1);
+}
+
+fwrite(STDOUT, 'Done. No ordering issues found in ' . count($files) . " PHP files.\n");
+exit(0);
