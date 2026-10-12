@@ -14,10 +14,9 @@
 		"phpstan/phpstan-nette": "^2.0"
 	},
 	"autoload": {
+		"classmap": ["src/"],
 		"psr-4": {
-			"Drago\\CodeOrder\\": "src/Common/",
-			"Drago\\FormOrder\\": "src/Form/",
-			"Drago\\ClassOrder\\": "src/Class/"
+			"Drago\\": "src"
 		}
 	},
 	"bin": [
