@@ -6,7 +6,7 @@
 	"require": {
 		"php": ">=8.3 <9",
 		"composer-runtime-api": "^2.2",
-		"nikic/php-parser": "^5.0",
+		"nikic/php-parser": "^5.3",
 		"nette/neon": "^3.4"
 	},
 	"require-dev": {
@@ -15,6 +15,7 @@
 	},
 	"autoload": {
 		"psr-4": {
+			"Drago\\CodeOrder\\": "src/Common/",
 			"Drago\\FormOrder\\": "src/Form/",
 			"Drago\\ClassOrder\\": "src/Class/"
 		}

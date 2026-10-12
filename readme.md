@@ -7,7 +7,7 @@
 
 Checks and fixes ordering conventions in Nette application code. The package contains two focused commands: one for fluent Nette Form control methods and one for PHP class members, including Nette Presenter lifecycle methods.
 
-Both commands preserve method bodies and formatting. They move only supported declarations or calls and keep the original order for items with the same priority. Ambiguous code is left unchanged.
+Both commands preserve method bodies and formatting. They move only supported declarations or calls and keep the original order for items with the same priority. Ambiguous code is left unchanged. Before a file is written, the result is checked to be valid PHP with the same tokens in a different order.
 
 ## Installation
 
@@ -61,7 +61,7 @@ form-order:
 
 The available method groups are `presentation`, `choices`, `state`, `defaults`, `input`, `required`, and `validation`. An integer can be used instead of a group name when a custom method needs a specific priority; lower numbers run earlier. Calls with equal priority keep their source order.
 
-The ordering rule does not add or remove control methods or validation rules. If a chain contains an unsupported method, the tool leaves that chain unchanged. It is syntax-based and does not verify that a method named `addText()` or another configured control factory actually belongs to a Nette form. An example configuration for Drago Form is available in `examples/drago-project.neon`.
+The ordering rule does not add or remove control methods or validation rules. If a chain contains an unsupported method, the tool leaves that chain unchanged. Calls after `addCondition()` or `addConditionOn()` are never moved, and `addFilter()` shares the priority of `addRule()` because filters run in sequence with the rules. It is syntax-based and does not verify that a method named `addText()` or another configured control factory actually belongs to a Nette form. An example configuration for Drago Form is available in `examples/drago-project.neon`.
 
 ## Class member and Presenter method order
 
@@ -77,7 +77,7 @@ Apply the configured ordering:
 class-order -d app --fix
 ```
 
-The general rule places constants before properties, groups properties by visibility (`public`, `protected`, `private`), puts the constructor before other methods, then groups remaining methods by visibility. Equal-priority members retain their relative order.
+The general rule places constants before properties, groups properties by visibility (`public`, `protected`, `private`), puts the constructor before other methods, then groups remaining methods by visibility. Equal-priority members retain their relative order. A class is left unchanged when a comment shares a line with a member, the class brace or a `use` statement, or when moving a constructor with promoted public properties would change the declaration order of public properties (visible in `json_encode()`).
 
 For classes that extend `Nette\Application\UI\Presenter` directly or through a base class whose name ends in `Presenter`, recognized methods follow the lifecycle order after the constructor: `inject*()`, `startup()`, `action*()`, `handle*()`, `beforeRender()`, `render*()`, `afterRender()`, and `shutdown()`. This is a source-order convention based on runtime behavior; Nette does not require it.
 

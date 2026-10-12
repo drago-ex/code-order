@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drago\ClassOrder;
 
+use Drago\CodeOrder\ReorderGuard;
+use PhpParser\Modifiers;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassConst;
@@ -129,6 +131,12 @@ final class ClassMemberOrderer
 					return;
 				}
 
+				// Promoted public properties are declared where the constructor stands, which
+				// is visible in json_encode(), foreach and var_dump().
+				if ($this->changesPublicPropertyOrder($ranked, $sorted)) {
+					return;
+				}
+
 				$lastNode = $run[count($run) - 1];
 				$lastEnd = $lastNode->getAttribute('endFilePos');
 				if (!is_int($lastEnd)) {
@@ -151,6 +159,7 @@ final class ClassMemberOrderer
 						|| $start < $cursor
 						|| $end < $start
 						|| $this->hasTrailingComment($end)
+						|| $this->hasLeadingInlineComment($cursor, $statement)
 					) {
 						return;
 					}
@@ -180,6 +189,86 @@ final class ClassMemberOrderer
 					'length' => $lastEnd + 1 - $runStart,
 					'replacement' => $replacement,
 				];
+			}
+
+
+			/**
+			 * @param list<array{node: Node, rank: int, index: int}> $before
+			 * @param list<array{node: Node, rank: int, index: int}> $after
+			 */
+			private function changesPublicPropertyOrder(array $before, array $after): bool
+			{
+				$positionBefore = [];
+				foreach ($before as $position => $item) {
+					$positionBefore[spl_object_id($item['node'])] = $position;
+				}
+
+				$positionAfter = [];
+				foreach ($after as $position => $item) {
+					$positionAfter[spl_object_id($item['node'])] = $position;
+				}
+
+				foreach ($before as $constructor) {
+					if (!$constructor['node'] instanceof ClassMethod || !$this->hasPromotedPublicParameter($constructor['node'])) {
+						continue;
+					}
+
+					$constructorId = spl_object_id($constructor['node']);
+					foreach ($before as $property) {
+						if (!$property['node'] instanceof Property || !$property['node']->isPublic()) {
+							continue;
+						}
+
+						$propertyId = spl_object_id($property['node']);
+						if (($positionBefore[$constructorId] < $positionBefore[$propertyId]) !== ($positionAfter[$constructorId] < $positionAfter[$propertyId])) {
+							return true;
+						}
+					}
+				}
+
+				return false;
+			}
+
+
+			private function hasPromotedPublicParameter(ClassMethod $method): bool
+			{
+				if (strtolower($method->name->toString()) !== '__construct') {
+					return false;
+				}
+
+				foreach ($method->params as $parameter) {
+					if (!$parameter->isPromoted()) {
+						continue;
+					}
+
+					if (($parameter->flags & Modifiers::PUBLIC) !== 0 || ($parameter->flags & Modifiers::VISIBILITY_MASK) === 0) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+
+			/**
+			 * PHP-Parser attaches a comment to the node that follows it, even when it is written
+			 * at the end of the previous line (after the class brace or after "use Trait;").
+			 * Such a comment must not travel with that node.
+			 */
+			private function hasLeadingInlineComment(int $cursor, Node $node): bool
+			{
+				$first = PHP_INT_MAX;
+				foreach ($node->getComments() as $comment) {
+					$position = $comment->getStartFilePos();
+					if ($position < $cursor) {
+						return true;
+					}
+
+					$first = min($first, $position);
+				}
+
+				return $first !== PHP_INT_MAX
+					&& !str_contains(substr($this->source, $cursor, $first - $cursor), "\n");
 			}
 
 
@@ -371,16 +460,19 @@ final class ClassMemberOrderer
 			}
 		};
 
-		(new NodeTraverser(new NameResolver, $visitor))->traverse($statements);
+		new NodeTraverser(new NameResolver, $visitor)->traverse($statements);
 		$patches = $visitor->getPatches();
 		if ($patches === []) {
 			return null;
 		}
 
 		usort($patches, static fn(array $first, array $second): int => $second['start'] <=> $first['start']);
+		$original = $source;
 		foreach ($patches as $patch) {
 			$source = substr_replace($source, $patch['replacement'], $patch['start'], $patch['length']);
 		}
+
+		ReorderGuard::assertOnlyReordered($original, $source);
 
 		return $source;
 	}

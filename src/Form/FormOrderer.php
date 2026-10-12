@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Drago\FormOrder;
 
+use Drago\CodeOrder\ReorderGuard;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
+use RuntimeException;
 
 final class FormOrderer
 {
+	private const MaxPasses = 10;
+
+
 	public function __construct(
 		private FormOrderConfiguration $configuration = new FormOrderConfiguration,
 	) {
@@ -19,7 +24,12 @@ final class FormOrderer
 	{
 		$original = $source;
 		$parser = (new ParserFactory)->createForNewestSupportedVersion();
+		$passes = 0;
 		while (true) {
+			if (++$passes > self::MaxPasses) {
+				throw new RuntimeException('Ordering did not settle after ' . self::MaxPasses . ' passes.');
+			}
+
 			$statements = $parser->parse($source);
 			if ($statements === null) {
 				return $source === $original ? null : $source;
@@ -30,7 +40,7 @@ final class FormOrderer
 				$this->configuration->getMethodOrder(),
 				$source,
 			);
-			(new NodeTraverser($visitor))->traverse($statements);
+			new NodeTraverser($visitor)->traverse($statements);
 
 			$patches = $this->getNonOverlappingPatches($visitor->getPatches());
 			if ($patches === []) {
@@ -48,7 +58,13 @@ final class FormOrderer
 			}
 		}
 
-		return $source === $original ? null : $source;
+		if ($source === $original) {
+			return null;
+		}
+
+		ReorderGuard::assertOnlyReordered($original, $source);
+
+		return $source;
 	}
 
 

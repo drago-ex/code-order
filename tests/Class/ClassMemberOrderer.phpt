@@ -243,3 +243,77 @@ test('orders asymmetric properties by their read visibility', function () {
 		array_map(static fn($property): string => $property->props[0]->name->toString(), $class->getProperties()),
 	);
 });
+
+
+test('keeps a comment after a use statement in place', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Example
+		{
+			use SmartObject; // magic properties
+
+			private int $b;
+
+			public int $a;
+		}
+		PHP;
+
+	Assert::null($orderer->reorder($source));
+});
+
+
+test('keeps a comment on the line of the class brace in place', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Example { // about the class
+			private int $a;
+
+			public int $b;
+		}
+		PHP;
+
+	Assert::null($orderer->reorder($source));
+});
+
+
+test('does not change the declaration order of public properties through a promoted constructor', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Dto
+		{
+			public function __construct(public int $id) {}
+
+			public string $name = '';
+		}
+		PHP;
+
+	Assert::null($orderer->reorder($source));
+});
+
+
+test('moves a constructor that promotes only non-public properties', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Service
+		{
+			public function __construct(private Foo $foo) {}
+
+			public string $name = '';
+		}
+		PHP;
+	$expected = <<<'PHP'
+		<?php
+		class Service
+		{
+			public string $name = '';
+
+			public function __construct(private Foo $foo) {}
+		}
+		PHP;
+
+	Assert::same($expected, $orderer->reorder($source));
+});

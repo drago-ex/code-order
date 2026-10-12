@@ -159,3 +159,59 @@ test('reorders nested control chains without overlapping patch corruption', func
 	Assert::same($expected, $ordered);
 	Assert::null($orderer->reorder($ordered ?? $source));
 });
+
+
+test('keeps addFilter and addRule in source order because filters run in sequence with the rules', function () {
+	$orderer = new FormOrderer(new FormOrderConfiguration);
+	$source = <<<'PHP'
+		<?php
+		$form->addText('phone')
+			->addRule(Form::Pattern, 'No spaces allowed', '\S+')
+			->addFilter('trim')
+			->setRequired()
+			->setHtmlAttribute('class', 'form-control');
+		PHP;
+	$expected = <<<'PHP'
+		<?php
+		$form->addText('phone')
+			->setHtmlAttribute('class', 'form-control')
+			->setRequired()
+			->addRule(Form::Pattern, 'No spaces allowed', '\S+')
+			->addFilter('trim');
+		PHP;
+
+	Assert::same($expected, $orderer->reorder($source));
+});
+
+
+test('does not move calls that follow addCondition because they act on the condition', function () {
+	$orderer = new FormOrderer(new FormOrderConfiguration);
+	$source = <<<'PHP'
+		<?php
+		$form->addText('email')
+			->addRule(Form::Filled)
+			->setHtmlAttribute('class', 'form-control')
+			->addCondition(Form::Filled)
+			->addRule(Form::Email);
+		PHP;
+	$expected = <<<'PHP'
+		<?php
+		$form->addText('email')
+			->setHtmlAttribute('class', 'form-control')
+			->addRule(Form::Filled)
+			->addCondition(Form::Filled)
+			->addRule(Form::Email);
+		PHP;
+
+	Assert::same($expected, $orderer->reorder($source));
+
+	$unchanged = <<<'PHP'
+		<?php
+		$form->addText('email')
+			->addCondition(Form::Filled)
+			->setRequired('Fill it')
+			->setHtmlId('email');
+		PHP;
+
+	Assert::null($orderer->reorder($unchanged));
+});

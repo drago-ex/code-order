@@ -35,6 +35,14 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 		'addImageButton',
 	];
 
+	/**
+	 * Calls after these act on the condition, not on the control, so they are never moved.
+	 */
+	private const ConditionMethods = [
+		'addCondition',
+		'addConditionOn',
+	];
+
 	private const StandardMethodOrder = [
 		'setHtmlAttribute' => 10,
 		'setHtmlId' => 10,
@@ -47,11 +55,13 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 		'setEmptyValue' => 20,
 		'setMaxLength' => 20,
 		'setFormat' => 20,
+		// setDisabled() clears the value, so it keeps its place relative to setDefaultValue().
 		'setDisabled' => 30,
 		'setNullable' => 30,
 		'setDefaultValue' => 30,
 		'setOmitted' => 30,
-		'addFilter' => 35,
+		// Filters run in sequence with the rules, so addFilter() keeps its place relative to addRule().
+		'addFilter' => 50,
 		'setRequired' => 40,
 		'addRule' => 50,
 		'addCondition' => 50,
@@ -140,20 +150,33 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 		}
 
 		/** @var list<MethodCall> $methods */
-		$methods = array_slice($chain, 1);
+		$methods = [];
+		foreach (array_slice($chain, 1) as $method) {
+			if (in_array($this->getMethodName($method), self::ConditionMethods, true)) {
+				break;
+			}
+
+			$methods[] = $method;
+		}
+
 		if (count($methods) < 2) {
 			return;
 		}
 
+		/** @var array<int, int> $priorities */
+		$priorities = [];
 		foreach ($methods as $method) {
-			if (!array_key_exists($this->getMethodName($method) ?? '', $this->methodOrder)) {
+			$name = $this->getMethodName($method);
+			if ($name === null || !array_key_exists($name, $this->methodOrder)) {
 				return;
 			}
+
+			$priorities[spl_object_id($method)] = $this->methodOrder[$name];
 		}
 
 		/** @var list<MethodCall> $sorted */
 		$sorted = $methods;
-		usort($sorted, fn(MethodCall $first, MethodCall $second): int => $this->methodOrder[$this->getMethodName($first)] <=> $this->methodOrder[$this->getMethodName($second)]);
+		usort($sorted, static fn(MethodCall $first, MethodCall $second): int => $priorities[spl_object_id($first)] <=> $priorities[spl_object_id($second)]);
 		if ($this->sameOrder($methods, $sorted)) {
 			return;
 		}
