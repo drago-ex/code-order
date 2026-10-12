@@ -460,7 +460,7 @@ final class ClassMemberOrderer
 			}
 		};
 
-		new NodeTraverser(new NameResolver, $visitor)->traverse($statements);
+		(new NodeTraverser(new NameResolver, $visitor))->traverse($statements);
 		$patches = $visitor->getPatches();
 		if ($patches === []) {
 			return null;
