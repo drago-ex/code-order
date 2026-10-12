@@ -40,7 +40,7 @@ final class FormOrderer
 				$this->configuration->getMethodOrder(),
 				$source,
 			);
-			new NodeTraverser($visitor)->traverse($statements);
+			(new NodeTraverser($visitor))->traverse($statements);
 
 			$patches = $this->getNonOverlappingPatches($visitor->getPatches());
 			if ($patches === []) {
