@@ -1,13 +1,19 @@
 # Drago Code Order
 
+
+Checks and fixes ordering conventions in Nette application code. The package contains two focused commands: one for fluent Nette Form control methods and one for PHP class members, including Nette Presenter lifecycle methods.
+
+Both commands preserve method bodies and formatting. They move only supported declarations or calls and keep the original order for items with the same priority. Ambiguous code is left unchanged. Before a file is written, the result is checked to be valid PHP with the same tokens in a different order.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/drago-ex/code-order/blob/main/license)
 [![PHP version](https://badge.fury.io/ph/drago-ex%2Fcode-order.svg)](https://badge.fury.io/ph/drago-ex%2Fcode-order)
 [![Tests](https://github.com/drago-ex/code-order/actions/workflows/tests.yml/badge.svg)](https://github.com/drago-ex/code-order/actions/workflows/tests.yml)
 [![Coding Style](https://github.com/drago-ex/code-order/actions/workflows/coding-style.yml/badge.svg)](https://github.com/drago-ex/code-order/actions/workflows/coding-style.yml)
 
-Checks and fixes ordering conventions in Nette application code. The package contains two focused commands: one for fluent Nette Form control methods and one for PHP class members, including Nette Presenter lifecycle methods.
+## Requirements
 
-Both commands preserve method bodies and formatting. They move only supported declarations or calls and keep the original order for items with the same priority. Ambiguous code is left unchanged. Before a file is written, the result is checked to be valid PHP with the same tokens in a different order.
+- PHP >= 8.3, < 9
+- Composer 2
 
 ## Installation
 
