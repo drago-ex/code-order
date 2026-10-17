@@ -317,3 +317,23 @@ test('moves a constructor that promotes only non-public properties', function ()
 
 	Assert::same($expected, $orderer->reorder($source));
 });
+
+
+test('recognizes the constructor regardless of letter case', function () {
+	$orderer = new ClassMemberOrderer;
+	$source = <<<'PHP'
+		<?php
+		class Example
+		{
+			public function run(): void {}
+
+			public function __Construct() {}
+		}
+		PHP;
+	$ordered = $orderer->reorder($source);
+	$parser = (new ParserFactory)->createForNewestSupportedVersion();
+	$class = (new NodeFinder)->findFirstInstanceOf($parser->parse($ordered ?? ''), Class_::class);
+
+	Assert::type(Class_::class, $class);
+	Assert::same(['__Construct', 'run'], array_map(static fn($method): string => $method->name->toString(), $class->getMethods()));
+});

@@ -65,7 +65,8 @@ for ($index = 0; $index < count($arguments); $index++) {
 		$paths[] = $path;
 		continue;
 	}
-		if ($argument === '--config') {
+
+	if ($argument === '--config') {
 		$configPath = $arguments[++$index] ?? null;
 		if ($configPath === null) {
 			fwrite(STDERR, $colorize('ERROR', '31') . ": --config requires a file path.\n");

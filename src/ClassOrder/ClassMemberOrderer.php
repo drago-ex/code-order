@@ -319,7 +319,7 @@ final class ClassMemberOrderer
 
 				if ($node instanceof ClassMethod) {
 					$name = $node->name->toString();
-					if ($name === '__construct') {
+					if (strtolower($name) === '__construct') {
 						return 30;
 					}
 

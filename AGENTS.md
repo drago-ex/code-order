@@ -18,6 +18,12 @@ Use this file as package-specific guidance when working in this repository. Keep
 - `.github/`: CI workflows; keep their PHP versions and commands consistent with Composer and the package scripts.
 - `composer.json`: package metadata, dependency constraints, autoloading, and available Composer scripts.
 
+## Key Parts
+- `bin/form-order` and `bin/class-order` share the CLI structure; exit codes are 0 (clean or fixed), 1 (needs fix), 2 (error).
+- `FormOrder\FormOrderer` reorders fluent form-control chains; `FormOrderConfiguration` validates `form-order.neon`.
+- `ClassOrder\ClassMemberOrderer` reorders class members; the Presenter lifecycle order applies to classes whose parent name ends with `Presenter`.
+- `CodeOrder\ReorderGuard` must stay the last step: a result is written only when it parses and has the same tokens. Ambiguous code (comments on a member line, promoted public properties) is left unchanged on purpose.
+
 ## Dependencies
 
 Composer constraints describe the package contract. Before changing integration behavior, inspect the source and the actual call sites in this package; do not infer runtime usage solely from dependency declarations.
