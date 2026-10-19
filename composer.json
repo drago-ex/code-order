@@ -3,6 +3,12 @@
 	"description": "Checks and fixes the order of Nette form controls and PHP class members.",
 	"type": "library",
 	"license": "MIT",
+	"authors": [
+		{
+			"name": "Zdeněk Papučík",
+			"homepage": "https://github.com/accgit"
+		}
+	],
 	"require": {
 		"php": ">=8.3 <9",
 		"composer-runtime-api": "^2.2",
@@ -25,6 +31,6 @@
 	],
 	"scripts": {
 		"phpstan": "phpstan analyse",
-		"tester": "tester tests -s"
+		"tester": "tester tests -s -C"
 	}
 }

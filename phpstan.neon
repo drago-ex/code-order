@@ -2,3 +2,9 @@ parameters:
 	level: 8
 	paths:
 		- src
+		- tests
+	excludePaths:
+		analyseAndScan:
+			- tests/tmp (?)
+			- tests/*/temp/* (?)
+			- tests/*/*/temp/* (?)
