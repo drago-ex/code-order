@@ -1,5 +1,7 @@
 # Drago Code Order
 
+English | [Čeština](readme.cs.md)
+
 
 Checks and fixes ordering conventions in Nette application code. The package contains two focused commands: one for fluent Nette Form control methods and one for PHP class members, including Nette Presenter lifecycle methods.
 
@@ -20,10 +22,10 @@ Both commands preserve method bodies and formatting. They move only supported de
 Install globally to use both commands from any project, like other Composer CLI tools:
 
 ```bash
-composer global require drago-ex/code-order:dev-main
+composer global require drago-ex/code-order
 ```
 
-This installs the development branch. Once a stable release is available, the version suffix can be omitted. Composer makes the `form-order` and `class-order` commands available in its global `bin` directory. If that directory is not already in `PATH`, find it with `composer global config bin-dir --absolute` and add it to `PATH`. Alternatively, install Code Order as a development dependency in a single project with `composer require --dev drago-ex/code-order:dev-main`.
+Composer makes the `form-order` and `class-order` commands available in its global `bin` directory. If that directory is not already in `PATH`, find it with `composer global config bin-dir --absolute` and add it to `PATH`. Alternatively, install Code Order as a development dependency in a single project with `composer require --dev drago-ex/code-order`.
 
 ## Form control method order
 
