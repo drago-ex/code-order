@@ -3,6 +3,8 @@ parameters:
 	paths:
 		- src
 		- tests
+		- bin/form-order
+		- bin/class-order
 	excludePaths:
 		analyseAndScan:
 			- tests/tmp (?)

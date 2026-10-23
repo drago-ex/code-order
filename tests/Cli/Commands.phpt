@@ -9,7 +9,7 @@ use Tester\Assert;
 require __DIR__ . '/../bootstrap.php';
 
 
-function runCodeOrderCommand(string $command, array $arguments): array
+function runCodeOrderCommand(string $command, array $arguments, ?string $cwd = null): array
 {
 	$packagePath = dirname(__DIR__, 2);
 	$process = proc_open(
@@ -19,7 +19,7 @@ function runCodeOrderCommand(string $command, array $arguments): array
 			2 => ['pipe', 'w'],
 		],
 		$pipes,
-		$packagePath,
+		$cwd ?? $packagePath,
 	);
 
 	Assert::notSame(false, $process);
@@ -80,5 +80,21 @@ test('class command reports ordering issues without modifying the file and fixes
 		if (is_file($file)) {
 			unlink($file);
 		}
+	}
+});
+
+test('the commands also run from a project whose own vendor does not contain this package', function () {
+	$project = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'code-order-project-' . bin2hex(random_bytes(8));
+	mkdir($project . '/vendor', recursive: true);
+	file_put_contents($project . '/vendor/autoload.php', '<?php ');
+
+	try {
+		[$status, $output] = runCodeOrderCommand('class-order', ['.'], $project);
+		Assert::same(0, $status);
+		Assert::contains('No ordering issues found', $output);
+	} finally {
+		unlink($project . '/vendor/autoload.php');
+		rmdir($project . '/vendor');
+		rmdir($project);
 	}
 });

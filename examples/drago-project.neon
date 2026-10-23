@@ -5,7 +5,8 @@ form-order:
 			- addEmailInput
 			- addPasswordInput
 			- addIntegerInput
-			- addTextAreaForm
+			- addTextAreaInput
+			- addSlugInput
 			- addPasswordField
 			- addPasswordConfirmationField
 			- addEmailField
