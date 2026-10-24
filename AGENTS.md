@@ -21,7 +21,7 @@ Use this file as package-specific guidance when working in this repository. Keep
 ## Key Parts
 - `bin/form-order` and `bin/class-order` only find the autoloader and create `CodeOrder\Command` (options, scanning, check/fix, colors, exit codes 0 clean or fixed, 1 needs fix, 2 error) with their reorder function; change the CLI behaviour there, once for both. The autoloader search skips an autoload.php without this package (the vendor of the scanned project), tested in `tests/Cli`.
 - `FormOrder\FormOrderer` reorders fluent form-control chains; `FormOrderConfiguration` validates `form-order.neon`. `examples/drago-project.neon` lists the controls of drago-ex/form (3.0 names: `addTextAreaInput`, `addSlugInput`); keep it in step with form, chains on unlisted controls are not checked at all.
-- `ClassOrder\ClassMemberOrderer` reorders class members; the Presenter lifecycle order applies to classes whose parent name ends with `Presenter`.
+- `ClassOrder\ClassMemberOrderer` reorders class members (the patches are collected by `ClassMemberOrderVisitor`, as `FormOrderer` uses `FormElementOrderVisitor`); the Presenter lifecycle order applies to classes whose parent name ends with `Presenter`.
 - `CodeOrder\ReorderGuard` must stay the last step: a result is written only when it parses and has the same tokens. Ambiguous code (comments on a member line, promoted public properties) is left unchanged on purpose.
 
 ## Dependencies
