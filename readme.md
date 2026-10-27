@@ -1,7 +1,5 @@
 # Drago Code Order
 
-English | [Čeština](readme.cs.md)
-
 
 Checks and fixes ordering conventions in Nette application code. The package contains two focused commands: one for fluent Nette Form control methods and one for PHP class members, including Nette Presenter lifecycle methods.
 

@@ -1,7 +1,5 @@
 # Drago Code Order
 
-[English](readme.md) | Čeština
-
 Kontroluje a opravuje konvence pořadí v kódu aplikací na Nette. Balíček obsahuje dva úzce zaměřené příkazy: jeden pro metody ovládacích prvků Nette Forms volané v řetězci a jeden pro členy tříd v PHP, včetně metod životního cyklu presenterů v Nette.
 
 Oba příkazy zachovávají těla metod i formátování. Přesouvají jen podporované deklarace nebo volání a u položek se stejnou prioritou zachovají původní pořadí. Nejednoznačný kód nechají beze změny. Před zápisem souboru se ověří, že výsledek je platné PHP se stejnými tokeny v jiném pořadí.
