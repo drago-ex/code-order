@@ -1,12 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Drago\CodeOrder;
 
 use PhpParser\Error;
 use PhpParser\ParserFactory;
 use RuntimeException;
+use function is_array;
 
 
 /**
@@ -23,7 +22,11 @@ final class ReorderGuard
 		try {
 			(new ParserFactory)->createForNewestSupportedVersion()->parse($after);
 		} catch (Error $exception) {
-			throw new RuntimeException('Reordering would produce invalid code, the file was left unchanged: ' . $exception->getMessage(), 0, $exception);
+			throw new RuntimeException(
+				'Reordering would produce invalid code, the file was left unchanged: ' . $exception->getMessage(),
+				0,
+				$exception,
+			);
 		}
 
 		if (self::tokens($before) !== self::tokens($after)) {

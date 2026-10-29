@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Drago\ClassOrder;
 
@@ -13,6 +11,8 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\EnumCase;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\NodeVisitorAbstract;
+use function count, is_array, is_int, strlen;
+
 
 /**
  * Collects patches that reorder the members of top-level classes: constants, properties,
@@ -110,7 +110,10 @@ final class ClassMemberOrderVisitor extends NodeVisitorAbstract
 		}
 
 		$sorted = $ranked;
-		usort($sorted, static fn(array $first, array $second): int => [$first['rank'], $first['index']] <=> [$second['rank'], $second['index']]);
+		usort(
+			$sorted,
+			static fn(array $first, array $second): int => [$first['rank'], $first['index']] <=> [$second['rank'], $second['index']],
+		);
 		$sameOrder = true;
 		foreach ($ranked as $index => $item) {
 			if ($item['node'] !== $sorted[$index]['node']) {
@@ -212,7 +215,10 @@ final class ClassMemberOrderVisitor extends NodeVisitorAbstract
 				}
 
 				$propertyId = spl_object_id($property['node']);
-				if (($positionBefore[$constructorId] < $positionBefore[$propertyId]) !== ($positionAfter[$constructorId] < $positionAfter[$propertyId])) {
+				if (
+					($positionBefore[$constructorId] < $positionBefore[$propertyId])
+					!== ($positionAfter[$constructorId] < $positionAfter[$propertyId])
+				) {
 					return true;
 				}
 			}

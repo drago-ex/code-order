@@ -1,12 +1,12 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Drago\FormOrder;
 
 use InvalidArgumentException;
 use Nette\Neon\Neon;
 use RuntimeException;
+use function is_array, is_int, is_string;
+
 
 final class FormOrderConfiguration
 {

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Drago\CodeOrder;
 
@@ -12,6 +10,7 @@ use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileInfo;
 use Throwable;
+use function count, function_exists, strlen;
 
 
 /**
@@ -25,13 +24,11 @@ final class Command
 	private bool $useColors;
 
 
-	/**
-	 * @param Closure(?string): (Closure(string): ?string) $createReorder Gets the --config path, returns the reorder function.
-	 */
 	public function __construct(
 		private readonly string $name,
 		private readonly string $description,
 		private readonly bool $acceptsConfig,
+		/** @var Closure(?string): (Closure(string): ?string) Gets the --config path, returns the reorder function. */
 		private readonly Closure $createReorder,
 	) {
 		$this->useColors = function_exists('stream_isatty')
@@ -186,7 +183,8 @@ final class Command
 			$iterator = new RecursiveIteratorIterator(
 				new RecursiveCallbackFilterIterator(
 					new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
-					static fn(SplFileInfo $file): bool => !$file->isDir() || !in_array($file->getFilename(), self::SkippedDirectories, true),
+					static fn(SplFileInfo $file): bool => !$file->isDir()
+						|| !in_array($file->getFilename(), self::SkippedDirectories, true),
 				),
 			);
 

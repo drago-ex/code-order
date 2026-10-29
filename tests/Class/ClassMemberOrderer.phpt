@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Drago\ClassOrder\ClassMemberOrderer;
 use PhpParser\Node\Stmt\Class_;
@@ -163,7 +161,10 @@ test('does not apply lifecycle ordering to an ordinary class with similarly name
 	$class = (new NodeFinder)->findFirstInstanceOf($parser->parse($ordered ?? ''), Class_::class);
 
 	Assert::type(Class_::class, $class);
-	Assert::same(['renderDefault', 'actionDefault', 'helper'], array_map(static fn($method): string => $method->name->toString(), $class->getMethods()));
+	Assert::same(
+		['renderDefault', 'actionDefault', 'helper'],
+		array_map(static fn($method): string => $method->name->toString(), $class->getMethods()),
+	);
 });
 
 test('does not move class members across an unsupported trait-use statement', function () {

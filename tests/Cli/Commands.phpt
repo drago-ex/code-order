@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Drago\ClassOrder\ClassMemberOrderer;
 use Drago\FormOrder\FormOrderer;

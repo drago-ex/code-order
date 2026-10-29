@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Drago\FormOrder;
 
@@ -8,6 +6,8 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
 use PhpParser\NodeVisitorAbstract;
+use function array_key_exists, count, is_array, is_int;
+
 
 final class FormElementOrderVisitor extends NodeVisitorAbstract
 {
@@ -68,6 +68,7 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 		'addConditionOn' => 50,
 		'setValidationScope' => 50,
 	];
+
 	/** @var list<string> */
 	private array $controlMethods;
 
@@ -176,7 +177,11 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 
 		/** @var list<MethodCall> $sorted */
 		$sorted = $methods;
-		usort($sorted, static fn(MethodCall $first, MethodCall $second): int => $priorities[spl_object_id($first)] <=> $priorities[spl_object_id($second)]);
+		usort(
+			$sorted,
+			static fn(MethodCall $first, MethodCall $second): int => $priorities[spl_object_id($first)]
+				<=> $priorities[spl_object_id($second)],
+		);
 		if ($this->sameOrder($methods, $sorted)) {
 			return;
 		}

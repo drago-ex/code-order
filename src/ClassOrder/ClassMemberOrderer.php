@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Drago\ClassOrder;
 
@@ -8,6 +6,7 @@ use Drago\CodeOrder\ReorderGuard;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
+
 
 final class ClassMemberOrderer
 {
