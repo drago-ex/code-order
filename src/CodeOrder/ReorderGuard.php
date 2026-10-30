@@ -8,9 +8,7 @@ use RuntimeException;
 use function is_array;
 
 
-/**
- * Safety net for the orderers: reordering may only permute code.
- */
+/** Safety net for the orderers: reordering may only permute code. */
 final class ReorderGuard
 {
 	/**

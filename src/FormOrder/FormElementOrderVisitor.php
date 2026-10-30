@@ -35,9 +35,7 @@ final class FormElementOrderVisitor extends NodeVisitorAbstract
 		'addImageButton',
 	];
 
-	/**
-	 * Calls after these act on the condition, not on the control, so they are never moved.
-	 */
+	/** Calls after these act on the condition, not on the control, so they are never moved. */
 	private const ConditionMethods = [
 		'addCondition',
 		'addConditionOn',
